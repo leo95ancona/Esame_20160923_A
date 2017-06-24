@@ -25,9 +25,16 @@ public class TestDAO {
 			mapStudenti.put(studente.getMatricola(), studente);
 		
 		// Completo le informazioni di un corso
-		Corso corso = new Corso("01KSUPG");
-		dDAO.getStudentiIscrittiAlCorso(corso, mapStudenti);
-		System.out.println(corso.getStudenti());
+		//Corso corso = new Corso("01KSUPG");
+		//dDAO.getStudentiIscrittiAlCorso(corso, mapStudenti);
+		//System.out.println(corso.getStudenti());
+		
+		
+		//System.out.println(dDAO.getStudentiIscrittiAlCorso());
+		
+		//System.out.println(dDAO.getStudentiIscrittiAlCorso().size());
+		
+		
 	}
 
 }

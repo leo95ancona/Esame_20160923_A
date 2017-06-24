@@ -5,46 +5,59 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import it.polito.tdp.gestionale.model.Corso;
 import it.polito.tdp.gestionale.model.Studente;
+import it.polito.tdp.gestionale.model.StudenteCorsoPair;
 
 public class DidatticaDAO {
 
 	/*
 	 * Ottengo tutti gli studenti iscritti al Corso
 	 */
-	public void getStudentiIscrittiAlCorso(Corso corso, Map<Integer, Studente> mapStudenti) {
-		final String sql = "SELECT studente.matricola FROM iscrizione, studente WHERE iscrizione.matricola=studente.matricola AND codins=?";
+	public Set<StudenteCorsoPair> getStudentiIscrittiAlCorso(Map<Integer, Studente> mappaStudenti, Map<String, Corso> mappaCorsi) {
+		final String sql = "SELECT matricola, codins FROM iscrizione";
 
-		List<Studente> studentiIscrittiAlCorso = new ArrayList<Studente>();
+		Set<StudenteCorsoPair> studentiCorso = new HashSet<StudenteCorsoPair>();
 
 		try {
 			Connection conn = ConnectDB.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
-			st.setString(1, corso.getCodins());
+			
 
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
 				int matricola = rs.getInt("matricola");
-				Studente studente = mapStudenti.get(matricola);
-				if (studente != null) {
-					studentiIscrittiAlCorso.add(studente);
-				} else {
-					System.out.println("ERRORE! Lo studente non è presente!");
-				}
+				Studente studente = mappaStudenti.get(matricola);
+				
+				String codice = rs.getString("codins");
+				Corso corso = mappaCorsi.get(codice);
+				
+				StudenteCorsoPair stp = new StudenteCorsoPair(codice,matricola);
+				
+				studentiCorso.add(stp);
+				
+					
+					
+				
 			}
-
-			corso.setStudenti(studentiIscrittiAlCorso);
+			
+			
+			return studentiCorso;
+			
 
 		} catch (SQLException e) {
 			// e.printStackTrace();
 			throw new RuntimeException("Errore Db");
+			
 		}
+		
 	}
 
 	/*
@@ -98,6 +111,36 @@ public class DidatticaDAO {
 			}
 
 			return studenti;
+
+		} catch (SQLException e) {
+			// e.printStackTrace();
+			throw new RuntimeException("Errore Db");
+		}
+	}
+	
+	public void setStudentiIscrittiAlCorso(Corso corso, Map<Integer, Studente> mapStudenti) {
+		final String sql = "SELECT studente.matricola FROM iscrizione, studente WHERE iscrizione.matricola=studente.matricola AND codins=?";
+
+		List<Studente> studentiIscrittiAlCorso = new ArrayList<Studente>();
+
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, corso.getCodins());
+
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				int matricola = rs.getInt("matricola");
+				Studente studente = mapStudenti.get(matricola);
+				if (studente != null) {
+					studentiIscrittiAlCorso.add(studente);
+				} else {
+					System.out.println("ERRORE! Lo studente non è presente!");
+				}
+			}
+
+			corso.setStudenti(studentiIscrittiAlCorso);
 
 		} catch (SQLException e) {
 			// e.printStackTrace();
